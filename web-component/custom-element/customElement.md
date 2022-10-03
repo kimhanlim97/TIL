@@ -10,7 +10,7 @@
   
 * 등록된 커스텀 요소에 대한 정보를 제공
 
-* window.customElement를 통해 인스턴스 참조
+* window.customElement를 통해 참조
 
 # CustomElementRegistry.define
 
@@ -24,13 +24,20 @@
 
   - 옵션 객체. extends 프로퍼티에 상속 받는 요소를 명시함
 
-# 클래스 정의 시 유의사항
+# 커스텀 요소의 동작 정의 시 유의사항
 
-* shadow DOM에 커스텀 요소를 추가하기 위해 Element를 상속하는 것이 일반적
+* 기존 element 요소를 상속받는 서브클래스 형태가 일반적
 
-* shadowRoot 프로퍼티를 open하고 정의한 커스텀 요소를 부착하는 일련의 과정 필요
+* 새로운 커스텀 요소를 생성할 시
+  * 포괄적인 element 수퍼클래스를 상속받는 서브클래스의 형태가 일반적
+  * shadowRoot 프로퍼티를 open하고 정의한 커스텀 요소를 부착하는 것이 일반적
+
+* 기존에 정의된 element를 확장할 시
+  * 특정 element의 수퍼클래스를 상속받는 서브클래스의 형태가 일반적
+  * 수퍼클래스의 self에 커스텀 요소를 부착해 기존 요소를 확장하는 것이 일반적
 
 # 커스텀 요소 생성 예시
+
 ### 새로운 커스텀 요소 생성 예시
 ```javascript
 class WordCount extends HTMLElement {
@@ -52,4 +59,22 @@ customElements.define('word-count', WordCount)
 ```
 ```html
 <word-count></word-count>
+```
+
+### 기존 Element 확장 예시
+```javascript
+class HiddenUl extends HTMLUListElement {
+    constuctor() {
+        // 커스텀 요소를 부착할 element (self) 지정
+        self = super()
+
+        // element에 커스텀 요소를 부착
+        self.style.display = 'none'
+    }
+}
+
+customElements.define('hidden-ul', HiddenUl, { extends: 'ul' })
+```
+```html
+<ul is="hidden-ul"></ul>
 ```
