@@ -36,6 +36,17 @@
   * 특정 element의 수퍼클래스를 상속받는 서브클래스의 형태가 일반적
   * 수퍼클래스의 self에 커스텀 요소를 부착해 기존 요소를 확장하는 것이 일반적
 
+# 커스텀 요소의 생명 주기 콜백 사용하기
+
+* connectedCallback 메서드: 커스텀 요소가 DOM에 연결될 때 호출됨
+
+* disconnectedCallback 메서드: 커스텀 요소가 DOM에서 연결 해제될 떄 호출됨
+
+* adoptedCallback 메서드: 커스텀 요소가 새로운 DOM으로 이동할 때 호출됨
+
+* attributeChangedCallback 메서드: 커스텀 요소의 특성이 변경될 때 호출됨
+  * observedAttributes 정적 접근자 프로퍼티를 통해 관찰할 커스텀 요소의 속성을 배열 형태로 반환해야 함
+
 # 커스텀 요소 생성 예시
 
 ### 새로운 커스텀 요소 생성 예시
@@ -77,4 +88,37 @@ customElements.define('hidden-ul', HiddenUl, { extends: 'ul' })
 ```
 ```html
 <ul is="hidden-ul"></ul>
+```
+
+### 생명 주기 콜백 사용 예시
+```javascript
+class Square extends HTMLElement {
+    // attributeChangedCallback 메서드가 관찰할 속성들을 배열 형태로 반환
+    static get observedAttributes() {
+      return ['l', 'c']
+    }
+
+    constructor() {
+      // 커스텀 요소 생성과 동일하게 진행
+    }
+
+    connectedCallback() {
+      // 커스텀 요소가 DOM에 연결되었을 때 실행될 로직 작성
+    }
+
+    disconnectedCallback() {
+      // 커스텀 요소가 DOM에서 연결 해제되었을 때 실행될 로직 작성
+    }
+
+    adoptedCallback() {
+      // 커스텀 요소가 새로운 DOM으로 이동할 때 실행할 로직 작성
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      // observedAttributes 접근자 프로퍼티가 반환하는 속성들 관찰
+      // 속성이 변경되었을 때 실행될 로직 작성
+    }
+}
+
+customElements.define('custom-square', Square)
 ```
