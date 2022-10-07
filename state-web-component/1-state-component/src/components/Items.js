@@ -1,15 +1,28 @@
 import Component from "../core/Component.js";
 
 class Items extends Component {
-    items
     static get observedAttributes() {
         return ['items']
     }
+    
     constructor() {
         super()
     }
-    setComponent () {
-        const filteredItems = this.items
+
+    setEvent () {
+        const { deleteItem, toggleItem } = this.props
+
+        this.addEvent('click', '.delete', ({ target }) => {
+            deleteItem(Number(target.closest('[data-seq]').dataset.seq))
+        });
+
+        this.addEvent('click', '.toggle', ({target}) => {
+            toggleItem(Number(target.closest('[data-seq]').dataset.seq))
+        });
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        const filteredItems = JSON.parse(newValue)
 
         const $ul = this.shadowRoot.querySelector('ul') || document.createElement('ul')
         const $fragment = document.createDocumentFragment()
@@ -38,23 +51,6 @@ class Items extends Component {
         $ul.appendChild($fragment)
 
         this.shadowRoot.appendChild($ul)
-    }
-
-    setEvent () {
-        const { deleteItem, toggleItem } = this.props
-
-        this.addEvent('click', '.delete', ({ target }) => {
-            deleteItem(Number(target.closest('[data-seq]').dataset.seq))
-        });
-
-        this.addEvent('click', '.toggle', ({target}) => {
-            toggleItem(Number(target.closest('[data-seq]').dataset.seq))
-        });
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-        this.items = JSON.parse(newValue)
-        this.setComponent()
     }
 }
 

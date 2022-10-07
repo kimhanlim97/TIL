@@ -1,14 +1,14 @@
 import Component from "./core/Component.js";
 
 import Items from './components/Items.js'
-import './components/ItemAppender.js'
-import './components/ItemFilter.js'
+import ItemAppender from './components/ItemAppender.js'
+import ItemFilter from './components/ItemFilter.js'
 
 class App extends Component {
     constructor() {
         super()
     }
-
+    // 초기 상태
     setup() {
         this.$state = {
             isFilter: 0,
@@ -27,45 +27,65 @@ class App extends Component {
         };
     }
 
+    // 초기 렌더링
     setElement() {
-        if (!this.matches('item-appender')) {
-            const $itemAppender = document.createElement('item-appender')
-            this.shadowRoot.appendChild($itemAppender)
-        }
-        if (!this.matches('item-list')) {
-            const $itemList = document.createElement('item-list')
-            this.shadowRoot.appendChild($itemList)
-        }
-        if (!this.matches('item-filter')) {
-            const $itemFilter = document.createElement('item-filter')
-            this.shadowRoot.appendChild($itemFilter)
-        }
+        const $fragment = document.createDocumentFragment()
+        $fragment.appendChild(document.createElement('item-appender'))
+        $fragment.appendChild(document.createElement('item-list'))
+        $fragment.appendChild(document.createElement('item-filter'))
+        this.shadowRoot.appendChild($fragment)
     }
-
-    mounted() {
-        const { filteredItems, deleteItem, toggleItem } = this
+    propMount() {
+        const { filteredItems, deleteItem, toggleItem, addItem, filterItem } = this
         const $itemAppender = this.shadowRoot.querySelector('item-appender')
         const $itemList = this.shadowRoot.querySelector('item-list')
         const $itemFilter = this.shadowRoot.querySelector('item-filter')
+
+        $itemAppender.props = {
+            addItem: addItem.bind(this)
+        }
 
         $itemList.setAttribute('items', JSON.stringify(filteredItems))
         $itemList.props = {
             deleteItem: deleteItem.bind(this),
             toggleItem: toggleItem.bind(this)
         }
-        if (customElements.get('item-list')) {
-            return
+
+        $itemFilter.props = {
+            filterItem: filterItem.bind(this)
         }
-        else {
-            customElements.define('item-list', Items)
-        }
+
+        customElements.define('item-appender', ItemAppender)
+        customElements.define('item-list', Items)
+        customElements.define('item-filter', ItemFilter)
     }
 
+    // 상태 변경을 반영한 렌더링
+    stateMount() {
+        const { filteredItems } = this
+        const $itemList = this.shadowRoot.querySelector('item-list')
+
+        $itemList.setAttribute('items', JSON.stringify(filteredItems))
+    }
+
+    // 상태 / 프로퍼티 / 메서드
     get filteredItems () {
         const { isFilter, items } = this.$state;
         return items.filter(({ active }) => (isFilter === 1 && active) ||
                                             (isFilter === 2 && !active) ||
                                              isFilter === 0);
+    }
+
+    addItem (contents) {
+        const {items} = this.$state;
+        const seq = Math.max(0, ...items.map(v => v.seq)) + 1;
+        const active = false;
+        this.setState({
+            items: [
+                ...items,
+                {seq, contents, active}
+            ]
+        });
     }
 
     deleteItem (seq) {
@@ -79,6 +99,10 @@ class App extends Component {
         const index = items.findIndex(v => v.seq === seq);
         items[index].active = !items[index].active;
         this.setState({items});
+    }
+
+    filterItem (isFilter) {
+        this.setState({ isFilter });
     }
 }
 
