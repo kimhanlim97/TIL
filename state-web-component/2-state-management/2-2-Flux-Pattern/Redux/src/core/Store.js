@@ -14,12 +14,13 @@ export const createStore = (reducer) => {
         const newState = reducer(state, action)
 
         for (const [key, value] of Object.entries(newState)) {
-            if (!state[key]) continue
-            state[key] = value
+            if (!state[key]) continue;
+            state[key] = value;
         }
     }
 
     const getState = () => frozenState
 
+    // subscribe는 observer로 대체한다
     return { getState, dispatch }
 }

@@ -3,7 +3,6 @@
 
 # 순서
 1. 옵저버 패턴
-2. 중앙 집중식 저장소
-3. Flux Pattern - Vuex
-4. Flux Pattern - Redux
-5. 옵저버 패턴 최적화와 프록시
+2. Flux Pattern - Vuex
+3. Flux Pattern - Redux
+4. 옵저버 패턴 최적화와 프록시
