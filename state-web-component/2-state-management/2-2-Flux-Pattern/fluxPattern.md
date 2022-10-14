@@ -38,13 +38,11 @@
   * 전달된 Action을 받고 콜백 함수(Reducer)를 통해 Store에 데이터를 전달
   * 전체 어플리케이션에서 오직 하나의 인스턴스만 사용됨
 * Store
-  * Observer를 관리하는 Subject
-  * dispatcher로부터 데이터를 전달 받아 상태를 관리하는 Subject
-  * Notify 함수를 호출하여 상태 변화를 View에 통보
+  * Dispatcher에 등록된 콜백 함수(Reducer)로부터 데이터를 수신 받음
+  * Store가 변경되면 상태 변화를 View에 통보
   * 싱글톤 패턴으로 관리됨
 * View
-  * Store를 관찰하는 Observer
-  * Store의 상태 변화 시 수행할 동작을 정의
+  * Store의 상태 변화를 반영해 화면을 구성함(컴포넌트의 역할)
   * 자식 View로 데이터를 흘려보내는 뷰 컨트롤러의 역할도 함께함
 
 # Redux
