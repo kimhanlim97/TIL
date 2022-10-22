@@ -9,7 +9,6 @@ const ReactDOM = {
 
         const newElements = [ ...cloneElement.childNodes ]
         const oldElements = [ ...root.childNodes ]
-        console.log(newElements, oldElements)
         const maxLength = Math.max(newElements.length, oldElements.length)
         for (let i = 0; i < maxLength; i++) {
             updateElement(root, newElements[i], oldElements[i])
