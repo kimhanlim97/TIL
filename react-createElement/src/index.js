@@ -67,9 +67,8 @@ function App() {
     )
 }
 
-root.render(e(App, null))
-
 function tick() {
     root.render(e(App, null, null))
 }
+tick()
 setInterval(tick, 1000);

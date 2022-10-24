@@ -32,7 +32,7 @@ function updateElement(root, newElement, oldElement) {
     }
 
     if (newElement instanceof Text && oldElement instanceof Text) {
-        if (newElement.nodevalue === oldElement.nodeValue) return
+        if (newElement.nodeValue === oldElement.nodeValue) return
         return (oldElement.nodeValue = newElement.nodeValue)
     }
 
