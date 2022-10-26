@@ -23,21 +23,44 @@ const updateStyle = (styleSheet, newStyle) => {
     styleSheet.replaceSync(newStyle)
 }
 
-const styled = (tagName) => (styleArr, ...funcArr) => {
-    
+const styleSheet = () => {
     const styleSheet = new CSSStyleSheet()
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, styleSheet]
 
+    return styleSheet
+}
+
+const getStyleString = (styleArr, funcArr, props) => {
+    return funcArr.reduce((acc, func, i) => {
+        return acc + func(props) + styleArr[i + 1]
+    }, styleArr[0])
+}
+
+const styled = (tagName) => (styleArr, ...funcArr) => {
+    
+    const _styleSheet = styleSheet()
+
     return (props) => {
-        const style = funcArr.reduce((acc, func, i) => {
-            return acc + func(props) + styleArr[i + 1]
-        }, styleArr[0])
+        const style = getStyleString(styleArr, funcArr, props)
         const className = `styled${hashCode(style)}`
         const completedStyle = `.${className}{${style}}`
 
-        updateStyle(styleSheet, completedStyle)
+        updateStyle(_styleSheet, completedStyle)
         
         return React.createElement(tagName, { class: className, ...props })
+    }
+}
+
+const createGlobalStyles = (styleArr, ...funcArr) => {
+
+    const _styleSheet = styleSheet()
+
+    return (props) => {
+        const style = getStyleString(styleArr, funcArr, props)
+
+        updateStyle(_styleSheet, style)
+
+        return React.createElement(null, null, null)
     }
 }
 
@@ -63,11 +86,24 @@ function CurrentTime(props) {
     return e(StyledCurrentTime, { color: 'blue' }, `It is ${props.date}.`)
 }
 
+const globalStyles = createGlobalStyles`
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: ${ props => props.font } , "Arial", sans-serif;
+        line-height: 1.5;
+    }
+`;
+
 function App() {
-    return e('div', null, 
-            e(Hello, null),
-            e(CurrentTime, { date: new Date().toLocaleTimeString() })
-    )
+    return (
+            e(globalStyles, { font: "Helvetica" }),
+            e('div', null, 
+                e(Hello, null),
+                e(CurrentTime, { date: new Date().toLocaleTimeString() })
+    ))
 }
 
 const root = ReactDOM.createRoot(document.querySelector('#app'));

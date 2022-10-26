@@ -159,3 +159,69 @@ export default App;
     - 사실 컴포넌트의 스타일 별 스코프를 독립시키는 것은 현재 내 실력으로는 불가능하다
     - Shadow Root를 쓰는 방법도 있겠지만 그러면 글로벌 스타일 적용이 어려워진다.
     - 따라서 일단 이 부분은 구현하지 않는 걸로 하자 → 나중에 하자
+
+## GlobalStyles 구현
+
+### 요구사항
+
+Styled Components `styled` 함수는 컴포넌트 레벨의 스타일 스코프를 가지는 컴포넌트를 반환하는 반면, `createGlobalStyles` 함수는 애플리케이션 레벨의 스코프를 가지는 스타일 시트를 반환한다.
+
+현재 구현한 `styled` 함수도 어차피 애플리케이션 레벨의 스코프를 가지는 스타일 시트를 생성한다. 하지만, 구조적으로라도 `createGlobalStyles`를 모방해보자. 구조는 다음과 같다.
+
+![KakaoTalk_Photo_2022-10-26-10-46-47.jpeg](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/0aff0913-e515-4405-a281-683d8ae106f8/KakaoTalk_Photo_2022-10-26-10-46-47.jpeg)
+
+styledComponents의 `createGlobalStyle` 인터페이스는 대략적으로 다음과 같다.
+
+```jsx
+import { createGlobalStyle } from "styled-components";
+
+const GlobalStyle = createGlobalStyle`
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Helvetica", "Arial", sans-serif;
+    line-height: 1.5;
+  }
+`;
+
+// App 컴포넌트(애프리케이션 스코프)에 GlobalStyle을 적용한다
+function App() {
+  return (
+    <>
+      <GlobalStyle />
+			<Header>Hello World!</Header>
+    </>
+  );
+}
+
+export default App
+```
+
+JSX 대신 `React.createElement` 메서드를 활용하면 대충 다음과 같은 인터페이스를 가질 것이다.
+
+```jsx
+...
+
+function App() {
+  return (
+    React.createElement(GlobalStyle, null, null),
+		React.createElement(Header, null, 'Hello World!')
+  );
+}
+
+...
+```
+
+### createGlobalStyles 함수 디자인
+
+createGlobalStyles(*TaggedTemplateLiteral*) ⇒ ( [ …*string* ], [ …*interpolation* ] )
+
+*TaggedTemplateLiteral*은 *TemplateLiteral* 내부의 *interpolation*을 기준으로 분기한 두 개의 배열을 함수에 인수로 각각 전달한다. 각각의 배열에는 문자열과 *interpolation*이 담긴다. *interpolation*은 *props*를 인수로 받는 함수 형태로 작성한다.
+
+1. *document.adoptedStyleSheets*에서 참조하는 *CSSStyleSheet* 인스턴스 생성
+2. `return` *props*를 인수로 받는 함수
+    1. `[ *…string* ]`과 `[ *…interpolation* ]`을 반영한 *CSSRule* 문자열 생성
+    2. *CSSStyleSheet* 인스턴스에 생성한 *CSSRule* 문자열 적용
+    3. `return` React.createElement(null, null, null)
