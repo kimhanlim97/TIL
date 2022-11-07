@@ -120,3 +120,26 @@ Flux 패턴은 기존 MVC 패턴에서 모호한 위치에 있던 Controller의 
 Dispatcher는 View로부터 전달된 Action, 즉 Model(여기서는 Store)의 변경된 상태를 전달 받고 등록된 콜백함수를 실행하여 Store의 데이터를 Manipulate합니다. Store는 Dispatcher로부터 전달받은 데이터를 싱글톤 패턴으로 상태에 적용하고 이를 View에게 알립니다. View는 전달받은 상태를 화면에 보여주고 다시 Action을 생성해 위 과정을 반복합니다. 
 
 페이스북은 이러한 Flux 패턴을 통해 두가지의 목적을 달성했습니다. 첫번째는 모호한 Controller의 역할을 View와 Dispatcher로 분리함으로써 MVC 패턴을 SPA 구조에 맞게 변형했다는 것입니다. 때문에 React의 컴포넌트(View)는 상태를 관리하는 역할을 맞게 됩니다. 두번째는 컴포넌트의 상태 관리가 직접적으로 Store에 반영되기 위해서는 반드시 Dispatcher를 거쳐야 하고 Store를 통해 컴포넌트가 변경되기 때문에 단방향 데이터 흐름이 강제된다는 것입니다. 따라서 React의 컴포넌트(View)는 상태에 종속됩니다. 즉, 결과적으로 Flux 패턴에서 View는 상태를 수정하는 Controller의 역할과 상태에 종속되어 화면에 출력되는 View의 역할을 동시에 맞습니다. 그리고 Dispatcher는 변경된 상태를 반영하는 Controller의 역할을 분담해 가집니다. Store는 기존의 Model과 거의 유사한 역할을 맞습니다.
+
+### React - Component
+
+[Render and Commit](https://beta.reactjs.org/learn/render-and-commit)
+
+[Understanding Rendering in React ♻ ⚛️](https://dev.to/teo_garcia/understanding-rendering-in-react-i5i)
+
+앞서서 설명한 Flux 패턴은 React에서 상태의 흐름에 대해 접근할 때 유용하게 사용되는 도식입니다. 이번에 소개해드릴 도식은 상태보다는 React의 컴포넌트가 어떻게 View로 렌더링되는지에 대해 더 집중해 접근합니다. React는 컴포넌트가 렌더링되는 과정을 다음과 같이 3가지 과정으로 구분합니다.
+
+```mermaid
+flowchart LR
+T(Triggering)
+R(Rendering)
+C(Commiting)
+
+T ===> R ===> C
+```
+
+Triggering은 전에 설명했던 Flux 패턴에서 View가 Action을 생성하는 과정과 연결지어 생각해 볼 수 있습니다. 리액트가 정의하는 Triggering 상황은 `ReactDOM.render` 메서드를 호출(Initial Render) `useState`의 setter 함수, `useReducer`의 dispatches 함수 등의 Hook 함수를 호출하는 상황입니다. Initial Render 상황(`ReactDOM.render` 호출)을 제외하고 대부분의 경우 상태가 업데이트되는 상황에서 Triggering 과정에 돌입합니다.
+
+Rendering은 리액트가 Virtual DOM을 생성하는 시기입니다. 리액트에서는 렌더링을 DOM과 같은 기타 호스트 객체에 마운트하는 것과 구분지어 생각합니다. 리액트는 Rendering 단계에 들어서게 되면 컴포넌트를 호출하여 React Element를 생성하고 이를 토대로 Virtual DOM을 생성합니다. Flux 패턴과 연결하여 생각해보면 Dispatcher가 Store를 Manipulate하고 View에 알리는 과정에 대응되는 과정을 포함합니다. 거기에 더해 Reconciliation이라는 재조정 과정이 실행됩니다.
+
+Committing은 Rendering 단계에서 생성한 Virtual DOM을 DOM과 같은 실제 호스트 객체와 연결짓는 단계입니다. 브라우저의 경우 실제 브라우저에 이미 반영된 DOM 객체를 Virtual DOM에 맞게 수정하는 단계입니다. Flux 패턴 중 View 과정의 상세 항목이 생겨났다라고 생각하는 것이 편합니다.
